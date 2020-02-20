@@ -1,0 +1,283 @@
+GET _search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+GET /kibana_sample_data_ecommerce/_search?q=shaw&df=customer_last_name&sort=products.price:desc&from=0&size=3
+{
+  "profile": "true"
+}
+
+GET /kibana_sample_data_ecommerce/_search?q=shaw&sort=products.price:desc&from=0&size=3
+{
+  "profile": "true"
+}
+
+GET /kibana_sample_data_ecommerce/_search?q=customer_full_name:"Abd Shaw"&sort=products.price:desc&from=0&size=3
+{
+  "profile": "true"
+}
+
+GET /kibana_sample_data_ecommerce/_search?q=customer_full_name:(Abd AND Shaw)&sort=products.price:desc&from=0&size=3
+{
+  "profile": "true"
+}
+
+GET /kibana_sample_data_ecommerce/_search?q=customer_full_name:(Abd NOT Shaw)&sort=products.price:desc&from=0&size=3
+{
+  "profile": "true"
+}
+
+GET /kibana_sample_data_ecommerce/_search?q=customer_full_name:(Abd %2BShaw)&sort=products.price:desc&from=0&size=3
+{
+  "profile": "true"
+}
+
+GET /kibana_sample_data_ecommerce/_search?q=products.price:[50 TO 100]&sort=products.price:desc&from=0&size=3
+{
+  "profile": "true"
+}
+
+GET /kibana_sample_data_ecommerce/_search?q=products.price:[* TO 100]&sort=products.price:desc&from=0&size=3
+{
+  "profile": "true"
+}
+
+GET /kibana_sample_data_ecommerce/_search?q=products.price:(>50 AND <=100)&sort=products.price:desc&from=0&size=3
+{
+  "profile": "true"
+}
+
+GET /kibana_sample_data_ecommerce/_search?q=customer_last_name: sh*&sort=products.price:desc&from=0&size=3
+{
+  "profile": "true"
+}
+
+GET /kibana_sample_data_ecommerce/_search?q=customer_last_name: shwa~1&sort=products.price:desc&from=0&size=3
+{
+  "profile": "true"
+}
+
+GET /kibana_sample_data_ecommerce/_search?q=customer_full_name: "Sultan Shaw"~1&sort=products.price:desc&from=0&size=3&_source_excludes=products
+{
+  "profile": "true"
+}
+
+
+GET /kibana_sample_data_ecommerce/_search?sort=products.price:desc&from=0&size=3&_source_excludes=products
+{
+  "profile": "true",
+  "query": {
+    "match_phrase": {
+      "customer_full_name":{
+         "query": "Sultan Shaw",
+      "slop": 1
+      }
+     
+    }
+  }
+}
+
+GET /kibana_sample_data_ecommerce/_search
+{
+  "profile": "true", 
+  "query":{
+    "simple_query_string": {
+      "query": "Sultan +shaw",
+      "fields": ["customer_full_name"]
+    }
+  }
+}
+
+
+
+GET /_analyze
+{
+  "analyzer": "standard",
+  "text": "a hello-World"
+}
+
+GET /kibana_sample_data_ecommerce/_analyze
+{
+  "field": "customer_last_name",
+  "text": "Shaw"
+}
+
+POST /_analyze
+{
+  "tokenizer": "standard",
+  "filter": ["lowercase"],
+  "text": "Wagdi Shaw"
+}
+
+
+PUT my_index
+{
+  "mappings": {
+    "dynamic_templates": [
+      {
+        "full_name": {
+          "path_match": "name.*",
+          "path_unmatch": "*.middle",
+          "mapping": {
+            "type": "text",
+            "copy_to": "full_name"
+          }
+        }
+      }
+    ]
+  }
+}
+
+PUT my_index/_doc/1
+{
+  "name": {
+    "first": "zhong",
+    "middle": "zhen",
+    "last": "yang"
+  }
+}
+
+GET my_index/_search
+
+GET my_index/_mapping
+
+GET my_index/_search?q=full_name:zhong
+
+GET kibana_sample_data_flights/_search
+{
+  "size": 0,
+  "aggs": {
+    "flight_dest": {
+      "terms": {
+        "field": "DestCountry",
+        "size": 3
+      },
+      "aggs": {
+        "flight_city": {
+          "terms": {
+            "field": "DestCityName",
+            "size": 20
+          }
+        },
+        "weather": {
+          "terms": {
+            "field": "DestWeather"
+          }
+        }
+      }
+    }
+  }
+}
+
+GET kibana_sample_data_flights/_search
+{
+  "size": 0,
+  "aggs": {
+    "flight_dest": {
+      "terms": {
+        "field": "DestCountry",
+        "size": 3
+      },
+      "aggs": {
+        "average_price": {
+          "avg": {
+            "field": "AvgTicketPrice"
+          }
+        },
+        "weather":{
+          "terms":{
+            "field": "DestWeather"
+          }
+        }
+      }
+    }
+  }
+}
+
+DELETE products
+PUT products
+{
+  "settings": {
+    "number_of_shards": 1
+  }
+}
+POST /products/_bulk
+{ "index": { "_id": 1 }}
+{ "productID" : "XHDK-A-1293-#fJ3","desc":"iPhone" }
+{ "index": { "_id": 2 }}
+{ "productID" : "KDKE-B-9947-#kL5","desc":"iPad" }
+{ "index": { "_id": 3 }}
+{ "productID" : "JODL-X-1937-#pV7","desc":"MBP" }
+
+GET /products
+
+POST /products/_search
+{
+  "query": {
+    "term": {
+      "desc.keyword": {
+        "value":"iPhone"
+      }
+    }
+  }
+}
+
+POST /products/_search
+{
+  "explain": true,
+  "query": {
+    "constant_score": {
+      "filter": {
+        "term": {
+          "productID.keyword": "XHDK-A-1293-#fJ3"
+        }
+      }
+    }
+  }
+}
+
+#设置 position_increment_gap
+DELETE groups
+PUT groups
+{
+  "mappings": {
+    "properties": {
+      "names":{
+        "type": "text",
+        "position_increment_gap": 0
+      }
+    }
+  }
+}
+
+GET groups/_mapping
+
+POST groups/_doc
+{
+  "names": [ "John Water", "Water Smith"]
+}
+
+POST groups/_search
+{
+  "query": {
+    "match_phrase": {
+      "names": {
+        "query": "Water Water",
+        "slop": 100
+      }
+    }
+  }
+}
+POST groups/_search
+{
+  "query": {
+    "match_phrase": {
+      "names": "Water Smith"
+    }
+  }
+}
+
+
